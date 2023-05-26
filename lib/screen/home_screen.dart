@@ -2,21 +2,17 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-
-// URI/URL을 생성하는데 도움을 주는 클래스
-// 쿼리파라미터 등을 스트링으로 입력해도 알아서 처리해준다
-final uri = Uri.parse('http://dandi.15449642.com/');
+import 'package:firstapp/components/dialog.dart';
+// 바코드
+// import 'package:flutter/services.dart';
+// import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 
 class HomeScreen extends StatefulWidget {
-  final String url;
 
-  //HomeScreen({Key? key}) : super(key: key);
-  HomeScreen({Key? key, required this.url}) : super(key: key);
+  HomeScreen({Key? key}) : super(key: key);
 
   @override
-  _HomeScreenState createState() => _HomeScreenState(url);
-
+  _HomeScreenState createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
@@ -24,23 +20,86 @@ class _HomeScreenState extends State<HomeScreen> {
   late final Uri uri;
   late final WebViewController controller;
 
-  _HomeScreenState(this.url) {
-    uri = Uri.parse(url);
+  @override
+  void initState() {
+    super.initState();
 
-    controller = WebViewController()
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..addJavaScriptChannel('Toaster', onMessageReceived: (JavaScriptMessage message) {
-        Fluttertoast.showToast(
-          msg: message.message,
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.CENTER,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          fontSize: 16.0,
-        );
-      })
-      ..loadRequest(uri);
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+      String arg_url = 'http://applibrary2023.15449642.com:8080/main/site/appLibrary/main.do';
+      arg_url = "http://dandi.15449642.com/";
+
+      if(args != null && args['url'] != "") {
+        arg_url = args['url'];
+      } else {
+        // args가 null인 경우에 대한 처리
+      }
+
+      url = arg_url;
+      uri = Uri.parse(url);
+
+      controller
+        ..setJavaScriptMode(JavaScriptMode.unrestricted)
+        ..addJavaScriptChannel('Toaster', onMessageReceived: (JavaScriptMessage message) {
+          DialogAction positive = DialogAction("확인", () => true);
+          var data = jsonDecode(message.message);
+          //String title = data['title'];
+          String title = "";
+          String content = data['content'];
+          UDialog.confirm(context, title: title, content: content, positive: positive);
+        })
+        ..addJavaScriptChannel('TConfirm', onMessageReceived: (JavaScriptMessage message) {
+          var data = jsonDecode(message.message);
+          //String title = data['title'];
+          String title = "";
+          String content = data['content'];
+          String okEvent = data['okEvent'];
+          String noEvent = data['noEvent'];
+          DialogAction positive = DialogAction("확인", () {
+            controller.runJavaScriptReturningResult(okEvent);
+            return true;
+          });
+          DialogAction negative = DialogAction("취소", () {
+            controller.runJavaScriptReturningResult(noEvent);
+            return true;
+          });
+          UDialog.confirm(context, title: title, content: content, positive: positive, negative: negative);
+        })
+        ..addJavaScriptChannel("Barcode", onMessageReceived: (JavaScriptMessage message) {
+          Navigator.pushNamed(context, "/barcode");
+        })
+        ..loadRequest(uri);
+    });
+  }
+
+  _HomeScreenState() {
+
+    controller = WebViewController();
+      // ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      // ..addJavaScriptChannel('Toaster', onMessageReceived: (JavaScriptMessage message) {
+      //   DialogAction positive = DialogAction("확인", () => true);
+      //   var data = jsonDecode(message.message);
+      //   String title = data['title'];
+      //   String content = data['content'];
+      //   UDialog.confirm(context, title: title, content: content, positive: positive);
+      // })
+      // ..addJavaScriptChannel('TConfirm', onMessageReceived: (JavaScriptMessage message) {
+      //   var data = jsonDecode(message.message);
+      //   String title = data['title'];
+      //   String content = data['content'];
+      //   String OkEvent = data['OkEvent'];
+      //   String NoEvent = data['NoEvent'];
+      //   DialogAction positive = DialogAction("확인", () {
+      //     controller.runJavaScriptReturningResult(OkEvent);
+      //     return true;
+      //   });
+      //   DialogAction negative = DialogAction("취소", () {
+      //     controller.runJavaScriptReturningResult(NoEvent);
+      //     return true;
+      //   });
+      //   UDialog.confirm(context, title: title, content: content, positive: positive, negative: negative);
+      // })
+      // ..loadRequest(uri);
   }
 
   //앱 나가기 전 dialog
@@ -52,12 +111,12 @@ class _HomeScreenState extends State<HomeScreen> {
             title: const Text('앱 종료'),
             content: const Text('앱을 종료하시겠습니까?'),
             actions: [
-              ElevatedButton(
+              TextButton(
                 onPressed: () => Navigator.of(context).pop(false),
                 // => false 리턴
                 child: const Text('아니오'),
               ),
-              ElevatedButton(
+              TextButton(
                 onPressed: () => Navigator.of(context).pop(true),
                 // => true 리턴
                 child: const Text('예'),
@@ -73,10 +132,42 @@ class _HomeScreenState extends State<HomeScreen> {
       controller.goBack(); // => Webview 뒤로가기
       return Future.value(false); // => onWillPop은 false면 앱을 끄지 않는다.
     } else {
-      Future<bool> dialogResult = showExitPopup(context);
-      return Future.value(dialogResult); // => true이면 앱 끄기;
+      //Future<bool> dialogResult = showExitPopup(context);
+      //return Future.value(dialogResult); // => true이면 앱 끄기;
+      return Future.value(true); // => true이면 앱 끄기;
     }
   }
+
+  // 바코드, 화면 없이 실행
+  // Future<void> scanBarcodeNormal() async {
+  //   String barcodeScanRes;
+  //
+  //   try {
+  //     barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
+  //         '#ff6666', 'Cancel', true, ScanMode.BARCODE);
+  //     print(barcodeScanRes);
+  //   } on PlatformException {
+  //     barcodeScanRes = 'Failed to get platform version.';
+  //   }
+  //
+  //   if (!mounted) return;
+  //
+  //   //String url = "http://dandi.15449642.com?isbn=" + barcodeScanRes;
+  //   String url = "http://applibrary2023.15449642.com:8080/main/site/appLibrary/search.do?";
+  //   url += "cmd_name=bookandnonbooksearch";
+  //   url += "&search_type=detail";
+  //   url += "&detail=OK";
+  //   url += "&use_facet=N";
+  //   url += "&manage_code=MS%2CMB%2CMC%2CMG%2CMA%2CMJ%2CMH%2CMN%2CMO%2CMP%2CMQ%2CMR%2CMK%2CML%2CME%2CMF%2CMT%2CMU%2CMV%2CMW%2CMX%2CNA";
+  //   url += "&all_lib=N";
+  //   url += "&all_lib_detail_big=Y";
+  //   url += "&all_lib_detail_small=Y";
+  //   url += "&search_isbn_issn=" + barcodeScanRes;
+  //
+  //   print('barcode code value');
+  //   print(url);
+  //   Navigator.pushNamed(context, '/', arguments: {'url': url});
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -91,30 +182,31 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           IconButton(
             onPressed: () {
-              // 웹뷰에서 보여줄 사이트 실행하기
-              //controller.loadRequest(uri);
               Navigator.pushNamed(context, "/barcode");
+              // 바코드 화면없이 실행
+              //scanBarcodeNormal();
             },
             // 홈 버튼 아이콘 설정
             icon: Icon(
-              Icons.home,
+              Icons.barcode_reader
+              //Icons.home,
+            ),
+          ),
+          IconButton(
+            onPressed: () {
+              Navigator.pushNamed(context, "/sst");
+            },
+            // 홈 버튼 아이콘 설정
+            icon: Icon(
+              Icons.keyboard_voice,
             ),
           ),
         ],
       ),
       body: WillPopScope(
-        child: WebViewWidget(controller: controller
-          ..addJavaScriptChannel("Barcode", onMessageReceived: (JavaScriptMessage message) {
-            //var data = jsonDecode(message.message);
-
-            Navigator.pushNamed(context, "/barcode");
-          }),),
+        child: WebViewWidget(controller: controller),
         onWillPop: () => onGoBack(context),
       ),
-      // body: WebViewWidget( // webview 추가하기
-      //   controller: controller,
-      // ),
-
     );
   }
 
