@@ -14,7 +14,7 @@ class _BarcodeScreenState extends State<BarcodeScreen> {
   @override
   void initState() {
     super.initState();
-    scanBarcodeNormal();
+    //scanBarcodeNormal();
   }
 
   Future<void> scanBarcodeNormal() async {

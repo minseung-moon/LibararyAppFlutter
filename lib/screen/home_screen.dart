@@ -1,11 +1,14 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:firstapp/components/dialog.dart';
 // 바코드
-// import 'package:flutter/services.dart';
-// import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
+// 화면밝기
+import 'package:screen_brightness/screen_brightness.dart';
 
 class HomeScreen extends StatefulWidget {
 
@@ -67,6 +70,12 @@ class _HomeScreenState extends State<HomeScreen> {
         })
         ..addJavaScriptChannel("Barcode", onMessageReceived: (JavaScriptMessage message) {
           Navigator.pushNamed(context, "/barcode");
+        })
+        ..addJavaScriptChannel("BrightnessMax", onMessageReceived: (JavaScriptMessage message) {
+          setBrightness(1);
+        })
+        ..addJavaScriptChannel("BrightnessReset", onMessageReceived: (JavaScriptMessage message) {
+          resetBrightness();
         })
         ..loadRequest(uri);
     });
@@ -139,35 +148,53 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   // 바코드, 화면 없이 실행
-  // Future<void> scanBarcodeNormal() async {
-  //   String barcodeScanRes;
-  //
-  //   try {
-  //     barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
-  //         '#ff6666', 'Cancel', true, ScanMode.BARCODE);
-  //     print(barcodeScanRes);
-  //   } on PlatformException {
-  //     barcodeScanRes = 'Failed to get platform version.';
-  //   }
-  //
-  //   if (!mounted) return;
-  //
-  //   //String url = "http://dandi.15449642.com?isbn=" + barcodeScanRes;
-  //   String url = "http://applibrary2023.15449642.com:8080/main/site/appLibrary/search.do?";
-  //   url += "cmd_name=bookandnonbooksearch";
-  //   url += "&search_type=detail";
-  //   url += "&detail=OK";
-  //   url += "&use_facet=N";
-  //   url += "&manage_code=MS%2CMB%2CMC%2CMG%2CMA%2CMJ%2CMH%2CMN%2CMO%2CMP%2CMQ%2CMR%2CMK%2CML%2CME%2CMF%2CMT%2CMU%2CMV%2CMW%2CMX%2CNA";
-  //   url += "&all_lib=N";
-  //   url += "&all_lib_detail_big=Y";
-  //   url += "&all_lib_detail_small=Y";
-  //   url += "&search_isbn_issn=" + barcodeScanRes;
-  //
-  //   print('barcode code value');
-  //   print(url);
-  //   Navigator.pushNamed(context, '/', arguments: {'url': url});
-  // }
+  Future<void> scanBarcodeNormal() async {
+    String barcodeScanRes;
+
+    try {
+      barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
+          '#ff6666', 'Cancel', true, ScanMode.BARCODE);
+      print(barcodeScanRes);
+    } on PlatformException {
+      barcodeScanRes = 'Failed to get platform version.';
+    }
+
+    if (!mounted) return;
+
+    //String url = "http://dandi.15449642.com?isbn=" + barcodeScanRes;
+    String url = "http://applibrary2023.15449642.com:8080/main/site/appLibrary/search.do?";
+    url += "cmd_name=bookandnonbooksearch";
+    url += "&search_type=detail";
+    url += "&detail=OK";
+    url += "&use_facet=N";
+    url += "&manage_code=MS%2CMB%2CMC%2CMG%2CMA%2CMJ%2CMH%2CMN%2CMO%2CMP%2CMQ%2CMR%2CMK%2CML%2CME%2CMF%2CMT%2CMU%2CMV%2CMW%2CMX%2CNA";
+    url += "&all_lib=N";
+    url += "&all_lib_detail_big=Y";
+    url += "&all_lib_detail_small=Y";
+    url += "&search_isbn_issn=" + barcodeScanRes;
+
+    print('barcode code value');
+    print(url);
+    Navigator.pushNamed(context, '/', arguments: {'url': url});
+  }
+
+  Future<void> setBrightness(double brightness) async {
+    try {
+      await ScreenBrightness().setScreenBrightness(brightness);
+    } catch (e) {
+      debugPrint(e.toString());
+      throw 'Failed to set brightness';
+    }
+  }
+
+  Future<void> resetBrightness() async {
+    try {
+      await ScreenBrightness().resetScreenBrightness();
+    } catch (e) {
+      debugPrint(e.toString());
+      throw 'Failed to reset brightness';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -182,23 +209,13 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           IconButton(
             onPressed: () {
-              Navigator.pushNamed(context, "/barcode");
+              //Navigator.pushNamed(context, "/barcode");
               // 바코드 화면없이 실행
-              //scanBarcodeNormal();
+              scanBarcodeNormal();
             },
             // 홈 버튼 아이콘 설정
             icon: Icon(
               Icons.barcode_reader
-              //Icons.home,
-            ),
-          ),
-          IconButton(
-            onPressed: () {
-              Navigator.pushNamed(context, "/sst");
-            },
-            // 홈 버튼 아이콘 설정
-            icon: Icon(
-              Icons.keyboard_voice,
             ),
           ),
         ],
