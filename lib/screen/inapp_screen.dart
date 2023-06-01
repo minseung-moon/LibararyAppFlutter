@@ -41,8 +41,6 @@ class _InAppWebViewScreenState extends State<InAppScreen> {
           webViewController.loadUrl(urlRequest: URLRequest(url: await webViewController.getUrl()));}
       },
     ))!;
-    print('here');
-    print(kIsWeb ? "1": "2");
   }
 
   Future<void> setBrightness(double brightness) async {
@@ -261,9 +259,10 @@ class _InAppWebViewScreenState extends State<InAppScreen> {
                         });
 
                         webViewController.addJavaScriptHandler(handlerName: 'GetDeviceKey', callback: (args) async {
-                          print('here');
+                          print('deviceID');
                           String? deviceID = await getDeviceUniqueId();
                           print(deviceID);
+                          return deviceID;
                         });
 
                       },
