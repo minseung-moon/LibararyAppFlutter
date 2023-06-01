@@ -17,8 +17,8 @@ class InAppScreen extends StatefulWidget {
 
 class _InAppWebViewScreenState extends State<InAppScreen> {
   final GlobalKey webViewKey = GlobalKey();
-  Uri myUrl = Uri.parse("http://applibrary2023.15449642.com:8080/main/site/appLibrary/main.do");
-  //Uri myUrl = Uri.parse("http://dandi.15449642.com/");
+  //Uri myUrl = Uri.parse("http://applibrary2023.15449642.com:8080/main/site/appLibrary/main.do");
+  Uri myUrl = Uri.parse("http://dandi.15449642.com/");
   late final InAppWebViewController webViewController;
   late final PullToRefreshController pullToRefreshController;
   double progress = 0;
@@ -38,6 +38,8 @@ class _InAppWebViewScreenState extends State<InAppScreen> {
           webViewController.loadUrl(urlRequest: URLRequest(url: await webViewController.getUrl()));}
       },
     ))!;
+    print('here');
+    print(kIsWeb ? "1": "2");
   }
 
   Future<void> setBrightness(double brightness) async {
@@ -233,40 +235,46 @@ class _InAppWebViewScreenState extends State<InAppScreen> {
 
                           },
                           onCreateWindow: (controller, createWindowRequest) async{
-                            showDialog(
-                              context: context, builder: (context) {
-                              return AlertDialog(
-                                content: SizedBox(
-                                  width: MediaQuery.of(context).size.width,
-                                  height: 400,
-                                  child: InAppWebView(
-                                    // Setting the windowId property is important here!
-                                    windowId: createWindowRequest.windowId,
-                                    initialOptions: InAppWebViewGroupOptions(
-                                      android: AndroidInAppWebViewOptions(
-                                        builtInZoomControls: true,
-                                        thirdPartyCookiesEnabled: true,
-                                      ),
-                                      crossPlatform: InAppWebViewOptions(
-                                          cacheEnabled: true,
-                                          javaScriptEnabled: true,
-                                          userAgent: "Mozilla/5.0 (Linux; Android 9; LG-H870 Build/PKQ1.190522.001) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/83.0.4103.106 Mobile Safari/537.36"
-                                      ),
-                                      ios: IOSInAppWebViewOptions(
-                                        allowsInlineMediaPlayback: true,
-                                        allowsBackForwardNavigationGestures: true,
-                                      ),
-                                    ),
-                                    onCloseWindow: (controller) async{
-                                      if (Navigator.canPop(context)) {
-                                        Navigator.pop(context);
-                                      }
-                                    },
-                                  ),
-                                ),);
-                            },
-                            );
-                            return true;
+                            // showDialog(
+                            //   context: context, builder: (context) {
+                            //     return AlertDialog(
+                            //       content: SizedBox(
+                            //         width: MediaQuery.of(context).size.width,
+                            //         height: 400,
+                            //         child: InAppWebView(
+                            //           // Setting the windowId property is important here!
+                            //           windowId: createWindowRequest.windowId,
+                            //           initialOptions: InAppWebViewGroupOptions(
+                            //             android: AndroidInAppWebViewOptions(
+                            //               builtInZoomControls: true,
+                            //               thirdPartyCookiesEnabled: true,
+                            //             ),
+                            //             crossPlatform: InAppWebViewOptions(
+                            //                 cacheEnabled: true,
+                            //                 javaScriptEnabled: true,
+                            //                 userAgent: "Mozilla/5.0 (Linux; Android 9; LG-H870 Build/PKQ1.190522.001) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/83.0.4103.106 Mobile Safari/537.36"
+                            //             ),
+                            //             ios: IOSInAppWebViewOptions(
+                            //               allowsInlineMediaPlayback: true,
+                            //               allowsBackForwardNavigationGestures: true,
+                            //             ),
+                            //           ),
+                            //           onCloseWindow: (controller) async{
+                            //             if (Navigator.canPop(context)) {
+                            //               Navigator.pop(context);
+                            //             }
+                            //           },
+                            //         ),
+                            //       ),);
+                            //   },
+                            // );
+
+                            Uri? url = createWindowRequest.request?.url;
+                            if (url != null) {
+                              await webViewController.loadUrl(urlRequest: URLRequest(url: url));
+                            }
+                            return true; // true 반환하여 기본 동작 방지
+
                           },
                         )
                       ]))
