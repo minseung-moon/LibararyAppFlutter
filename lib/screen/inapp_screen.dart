@@ -1,5 +1,8 @@
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:android_id/android_id.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firstapp/components/dialog.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -107,8 +110,33 @@ class _InAppWebViewScreenState extends State<InAppScreen> {
       )); // Replace with your new Korean URL
     }
   }
+  Future<String?> getDeviceUniqueId() async {
+    String? deviceIdentifier = 'unknown';
+    var deviceInfo = DeviceInfoPlugin();
 
-  @override
+    if (Platform.isAndroid) {
+      const androidId = AndroidId();
+      deviceIdentifier = await androidId.getId();
+    } else if (Platform.isIOS) {
+      var iosInfo = await deviceInfo.iosInfo;
+      deviceIdentifier = iosInfo.identifierForVendor!;
+    } else if (Platform.isLinux) {
+      var linuxInfo = await deviceInfo.linuxInfo;
+      deviceIdentifier = linuxInfo.machineId!;
+    } else if (kIsWeb) {
+      var webInfo = await deviceInfo.webBrowserInfo;
+      deviceIdentifier = webInfo.vendor! +
+          webInfo.userAgent! +
+          webInfo.hardwareConcurrency.toString();
+    }
+
+    return deviceIdentifier;
+  }
+
+
+
+
+    @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar( // 앱바 위젯 추가
@@ -131,155 +159,125 @@ class _InAppWebViewScreenState extends State<InAppScreen> {
 
           ],
         ),
-        body: SafeArea(
-            child: WillPopScope(
-                onWillPop: () => onGoBack(context),
-                child: Column(children: <Widget>[
-                  // 로딩바
-                  // progress < 1.0
-                  //     ? LinearProgressIndicator(value: progress, color: Colors.blue)
-                  //     : Container(),
-                  Expanded(
-                      child: Stack(children: [
-                        InAppWebView(
-                          key: webViewKey,
-                          initialUrlRequest: URLRequest(url: myUrl),
-                          initialOptions: InAppWebViewGroupOptions(
-                            crossPlatform: InAppWebViewOptions(
-                                javaScriptCanOpenWindowsAutomatically: true,
-                                javaScriptEnabled: true,
-                                useOnDownloadStart: true,
-                                useOnLoadResource: true,
-                                useShouldOverrideUrlLoading: true,
-                                mediaPlaybackRequiresUserGesture: true,
-                                allowFileAccessFromFileURLs: true,
-                                allowUniversalAccessFromFileURLs: true,
-                                verticalScrollBarEnabled: true,
-                                userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.122 Safari/537.36'
-                            ),
-                            android: AndroidInAppWebViewOptions(
-                                useHybridComposition: true,
-                                allowContentAccess: true,
-                                builtInZoomControls: true,
-                                thirdPartyCookiesEnabled: true,
-                                allowFileAccess: true,
-                                supportMultipleWindows: true
-                            ),
-                            ios: IOSInAppWebViewOptions(
-                              allowsInlineMediaPlayback: true,
-                              allowsBackForwardNavigationGestures: true,
-                            ),
-                          ),
-                          pullToRefreshController: pullToRefreshController,
-                          onLoadStart: (InAppWebViewController controller, uri) {
-                            setState(() {myUrl = uri!;});
-                          },
-                          onLoadStop: (InAppWebViewController controller, uri) {
-                            setState(() {myUrl = uri!;});
-                          },
-                          onProgressChanged: (controller, progress) {
-                            if (progress == 100) {pullToRefreshController.endRefreshing();}
-                            setState(() {this.progress = progress / 100;});
-                          },
-                          androidOnPermissionRequest: (controller, origin, resources) async {
-                            return PermissionRequestResponse(
-                                resources: resources,
-                                action: PermissionRequestResponseAction.GRANT);
-                          },
-                          onWebViewCreated: (InAppWebViewController controller) {
-                            webViewController = controller;
+        body: WillPopScope(
+            onWillPop: () => onGoBack(context),
+            child: Column(children: <Widget>[
+              // 로딩바
+              // progress < 1.0
+              //     ? LinearProgressIndicator(value: progress, color: Colors.blue)
+              //     : Container(),
+              Expanded(
+                  child: Stack(children: [
+                    InAppWebView(
+                      key: webViewKey,
+                      initialUrlRequest: URLRequest(url: myUrl),
+                      initialOptions: InAppWebViewGroupOptions(
+                        crossPlatform: InAppWebViewOptions(
+                            javaScriptCanOpenWindowsAutomatically: true,
+                            javaScriptEnabled: true,
+                            useOnDownloadStart: true,
+                            useOnLoadResource: true,
+                            useShouldOverrideUrlLoading: true,
+                            mediaPlaybackRequiresUserGesture: true,
+                            allowFileAccessFromFileURLs: true,
+                            allowUniversalAccessFromFileURLs: true,
+                            verticalScrollBarEnabled: true,
+                            userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.122 Safari/537.36'
+                        ),
+                        android: AndroidInAppWebViewOptions(
+                            useHybridComposition: true,
+                            allowContentAccess: true,
+                            builtInZoomControls: true,
+                            thirdPartyCookiesEnabled: true,
+                            allowFileAccess: true,
+                            supportMultipleWindows: true
+                        ),
+                        ios: IOSInAppWebViewOptions(
+                          allowsInlineMediaPlayback: true,
+                          allowsBackForwardNavigationGestures: true,
+                        ),
+                      ),
+                      pullToRefreshController: pullToRefreshController,
+                      onLoadStart: (InAppWebViewController controller, uri) {
+                        setState(() {myUrl = uri!;});
+                      },
+                      onLoadStop: (InAppWebViewController controller, uri) {
+                        setState(() {myUrl = uri!;});
+                      },
+                      onProgressChanged: (controller, progress) {
+                        if (progress == 100) {pullToRefreshController.endRefreshing();}
+                        setState(() {this.progress = progress / 100;});
+                      },
+                      androidOnPermissionRequest: (controller, origin, resources) async {
+                        return PermissionRequestResponse(
+                            resources: resources,
+                            action: PermissionRequestResponseAction.GRANT);
+                      },
+                      onWebViewCreated: (InAppWebViewController controller) {
+                        webViewController = controller;
 
-                            webViewController.addJavaScriptHandler(handlerName: 'Toaster', callback: (args) {
-                              String arg = args[0];
+                        webViewController.addJavaScriptHandler(handlerName: 'Toaster', callback: (args) {
+                          String arg = args[0];
 
-                              if(arg != null) {
-                                DialogAction positive = DialogAction("확인", () => true);
-                                var data = jsonDecode(arg);
-                                String title = data['title'] ??  '';
-                                String content = data['content'] ?? '';
-                                UDialog.confirm(context, title: title, content: content, positive: positive);
-                              }
-                            });
+                          if(arg != null) {
+                            DialogAction positive = DialogAction("확인", () => true);
+                            var data = jsonDecode(arg);
+                            String title = data['title'] ??  '';
+                            String content = data['content'] ?? '';
+                            UDialog.confirm(context, title: title, content: content, positive: positive);
+                          }
+                        });
 
-                            webViewController.addJavaScriptHandler(handlerName: 'TConfirm', callback: (args) {
-                              String arg = args[0];
+                        webViewController.addJavaScriptHandler(handlerName: 'TConfirm', callback: (args) {
+                          String arg = args[0];
 
-                              var data = jsonDecode(arg);
-                              String title = "";
-                              String content = data['content'];
-                              String okEvent = data['okEvent'];
-                              String noEvent = data['noEvent'];
+                          var data = jsonDecode(arg);
+                          String title = "";
+                          String content = data['content'];
+                          String okEvent = data['okEvent'];
+                          String noEvent = data['noEvent'];
 
-                              DialogAction positive = DialogAction("확인", () {
-                                controller.evaluateJavascript(source: okEvent);
-                                return true;
-                              });
-                              DialogAction negative = DialogAction("취소", () {
-                                controller.evaluateJavascript(source: noEvent);
-                                return true;
-                              });
-                              UDialog.confirm(context, title: title, content: content, positive: positive, negative: negative);
-                            });
+                          DialogAction positive = DialogAction("확인", () {
+                            controller.evaluateJavascript(source: okEvent);
+                            return true;
+                          });
+                          DialogAction negative = DialogAction("취소", () {
+                            controller.evaluateJavascript(source: noEvent);
+                            return true;
+                          });
+                          UDialog.confirm(context, title: title, content: content, positive: positive, negative: negative);
+                        });
 
-                            webViewController.addJavaScriptHandler(handlerName: 'BrightnessMax', callback: (args) {
-                              setBrightness(1);
-                            });
-                            webViewController.addJavaScriptHandler(handlerName: 'BrightnessReset', callback: (args) {
-                              resetBrightness();
-                            });
+                        webViewController.addJavaScriptHandler(handlerName: 'BrightnessMax', callback: (args) {
+                          setBrightness(1);
+                        });
+                        webViewController.addJavaScriptHandler(handlerName: 'BrightnessReset', callback: (args) {
+                          resetBrightness();
+                        });
 
-                            webViewController.addJavaScriptHandler(handlerName: 'Barcode', callback: (args) {
-                              //Navigator.pushNamed(context, "/barcode");
-                              scanBarcodeNormal();
-                            });
+                        webViewController.addJavaScriptHandler(handlerName: 'Barcode', callback: (args) {
+                          //Navigator.pushNamed(context, "/barcode");
+                          scanBarcodeNormal();
+                        });
 
-                          },
-                          onCreateWindow: (controller, createWindowRequest) async{
-                            // showDialog(
-                            //   context: context, builder: (context) {
-                            //     return AlertDialog(
-                            //       content: SizedBox(
-                            //         width: MediaQuery.of(context).size.width,
-                            //         height: 400,
-                            //         child: InAppWebView(
-                            //           // Setting the windowId property is important here!
-                            //           windowId: createWindowRequest.windowId,
-                            //           initialOptions: InAppWebViewGroupOptions(
-                            //             android: AndroidInAppWebViewOptions(
-                            //               builtInZoomControls: true,
-                            //               thirdPartyCookiesEnabled: true,
-                            //             ),
-                            //             crossPlatform: InAppWebViewOptions(
-                            //                 cacheEnabled: true,
-                            //                 javaScriptEnabled: true,
-                            //                 userAgent: "Mozilla/5.0 (Linux; Android 9; LG-H870 Build/PKQ1.190522.001) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/83.0.4103.106 Mobile Safari/537.36"
-                            //             ),
-                            //             ios: IOSInAppWebViewOptions(
-                            //               allowsInlineMediaPlayback: true,
-                            //               allowsBackForwardNavigationGestures: true,
-                            //             ),
-                            //           ),
-                            //           onCloseWindow: (controller) async{
-                            //             if (Navigator.canPop(context)) {
-                            //               Navigator.pop(context);
-                            //             }
-                            //           },
-                            //         ),
-                            //       ),);
-                            //   },
-                            // );
+                        webViewController.addJavaScriptHandler(handlerName: 'GetDeviceKey', callback: (args) async {
+                          print('here');
+                          String? deviceID = await getDeviceUniqueId();
+                          print(deviceID);
+                        });
 
-                            Uri? url = createWindowRequest.request?.url;
-                            if (url != null) {
-                              await webViewController.loadUrl(urlRequest: URLRequest(url: url));
-                            }
-                            return true; // true 반환하여 기본 동작 방지
+                      },
+                      onCreateWindow: (controller, createWindowRequest) async{
+                        Uri? url = createWindowRequest.request?.url;
+                        if (url != null) {
+                          await webViewController.loadUrl(urlRequest: URLRequest(url: url));
+                        }
+                        return true; // true 반환하여 기본 동작 방지
 
-                          },
-                        )
-                      ]))
-                ])
-            )
+                      },
+                    )
+                  ]))
+            ])
         )
     );
   }
