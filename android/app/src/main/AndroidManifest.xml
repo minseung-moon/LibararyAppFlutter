@@ -40,5 +40,13 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <!--알림받기-->
+        <receiver android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver" android:exported="false" />
+        <!--Notification-->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="somain_notification"
+            />
+
     </application>
 </manifest>

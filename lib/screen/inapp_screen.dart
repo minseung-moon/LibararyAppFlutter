@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:android_id/android_id.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firstapp/components/dialog.dart';
+import 'package:firstapp/components/fcmSetting.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -20,8 +21,8 @@ class InAppScreen extends StatefulWidget {
 
 class _InAppWebViewScreenState extends State<InAppScreen> {
   final GlobalKey webViewKey = GlobalKey();
-  //Uri myUrl = Uri.parse("http://applibrary2023.15449642.com:8080/main/site/appLibrary/main.do");
-  Uri myUrl = Uri.parse("http://dandi.15449642.com/");
+  Uri myUrl = Uri.parse("http://applibrary2023.15449642.com:8080/main/site/appLibrary/main.do");
+  //Uri myUrl = Uri.parse("http://dandi.15449642.com/");
   late final InAppWebViewController webViewController;
   late final PullToRefreshController pullToRefreshController;
   double progress = 0;
@@ -43,6 +44,7 @@ class _InAppWebViewScreenState extends State<InAppScreen> {
     ))!;
   }
 
+  // 밝기조절 (0~1)
   Future<void> setBrightness(double brightness) async {
     try {
       await ScreenBrightness().setScreenBrightness(brightness);
@@ -51,7 +53,7 @@ class _InAppWebViewScreenState extends State<InAppScreen> {
       throw 'Failed to set brightness';
     }
   }
-
+  // 밝기 초기화
   Future<void> resetBrightness() async {
     try {
       await ScreenBrightness().resetScreenBrightness();
@@ -132,9 +134,7 @@ class _InAppWebViewScreenState extends State<InAppScreen> {
   }
 
 
-
-
-    @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar( // 앱바 위젯 추가
@@ -259,10 +259,16 @@ class _InAppWebViewScreenState extends State<InAppScreen> {
                         });
 
                         webViewController.addJavaScriptHandler(handlerName: 'GetDeviceKey', callback: (args) async {
-                          print('deviceID');
                           String? deviceID = await getDeviceUniqueId();
-                          print(deviceID);
+
                           return deviceID;
+                        });
+
+                        webViewController.addJavaScriptHandler(handlerName: 'GetPushToken', callback: (args) async {
+                          // FCM token
+                          String? firebaseToken = await fcmSetting();
+
+                          return firebaseToken;
                         });
 
                       },
