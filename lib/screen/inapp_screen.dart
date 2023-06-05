@@ -137,26 +137,26 @@ class _InAppWebViewScreenState extends State<InAppScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar( // 앱바 위젯 추가
-          // 배경색 지정
-          backgroundColor: Colors.orange,
-          // 앱 타이틀 지정
-          title: Text('Code Factory'),
-          // 가운데정렬
-          centerTitle: true,
-          actions: [
-            IconButton(
-              onPressed: () {
-                scanBarcodeNormal();
-              },
-              // 홈 버튼 아이콘 설정
-              icon: Icon(
-                  Icons.barcode_reader
-              ),
-            ),
-
-          ],
-        ),
+        // appBar: AppBar( // 앱바 위젯 추가
+        //   // 배경색 지정
+        //   backgroundColor: Colors.orange,
+        //   // 앱 타이틀 지정
+        //   title: Text('Code Factory'),
+        //   // 가운데정렬
+        //   centerTitle: true,
+        //   actions: [
+        //     IconButton(
+        //       onPressed: () {
+        //         scanBarcodeNormal();
+        //       },
+        //       // 홈 버튼 아이콘 설정
+        //       icon: Icon(
+        //           Icons.barcode_reader
+        //       ),
+        //     ),
+        //
+        //   ],
+        // ),
         body: WillPopScope(
             onWillPop: () => onGoBack(context),
             child: Column(children: <Widget>[
