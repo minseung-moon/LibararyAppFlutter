@@ -9,7 +9,7 @@
     <!--voice-->
 
     <application
-        android:label="firstapp"
+        android:label="세종시립도서관 모바일"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true"
@@ -47,6 +47,17 @@
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="somain_notification"
             />
+
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.example.firstapp.flutter_inappwebview.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths"/>
+        </provider>
 
     </application>
 </manifest>
