@@ -23,8 +23,7 @@ class InAppScreen extends StatefulWidget {
 
 class _InAppWebViewScreenState extends State<InAppScreen> {
   final GlobalKey webViewKey = GlobalKey();
-  //Uri myUrl = Uri.parse("http://applibrary2023.15449642.com:8080/");
-  Uri myUrl = Uri.parse("http://dandi.15449642.com/");
+  Uri myUrl = Uri.parse("http://applibrary2023.15449642.com:8080/");
   late final InAppWebViewController webViewController;
   late final PullToRefreshController pullToRefreshController;
   double progress = 0;
@@ -92,7 +91,6 @@ class _InAppWebViewScreenState extends State<InAppScreen> {
     if (!mounted) return;
 
     if(barcodeScanRes != "-1") {
-      //String url = "http://dandi.15449642.com?isbn=" + barcodeScanRes;
       String url = "http://applibrary2023.15449642.com:8080/main/site/appLibrary/search.do?";
       url += "cmd_name=bookandnonbooksearch";
       url += "&search_type=detail";
