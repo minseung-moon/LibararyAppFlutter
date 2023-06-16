@@ -9,7 +9,7 @@
     <!--voice-->
 
     <application
-        android:label="세종시립도서관 모바일"
+        android:label="세종시립도서관"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true"

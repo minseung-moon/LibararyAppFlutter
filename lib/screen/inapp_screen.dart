@@ -5,12 +5,14 @@ import 'package:android_id/android_id.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firstapp/components/dialog.dart';
 import 'package:firstapp/components/fcmSetting.dart';
+import 'package:firstapp/screen/new_inapp_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:screen_brightness/screen_brightness.dart';
+import 'package:url_launcher/url_launcher.dart'; // 패키지
 
 class InAppScreen extends StatefulWidget {
   const InAppScreen({Key? key}):super(key:key);
@@ -21,7 +23,8 @@ class InAppScreen extends StatefulWidget {
 
 class _InAppWebViewScreenState extends State<InAppScreen> {
   final GlobalKey webViewKey = GlobalKey();
-  Uri myUrl = Uri.parse("http://applibrary2023.15449642.com:8080/main/site/appLibrary/main.do");
+  //Uri myUrl = Uri.parse("http://applibrary2023.15449642.com:8080/main/site/appLibrary/main.do");
+  Uri myUrl = Uri.parse("http://applibrary2023.15449642.com:8080/");
   //Uri myUrl = Uri.parse("http://dandi.15449642.com/");
   late final InAppWebViewController webViewController;
   late final PullToRefreshController pullToRefreshController;
@@ -274,7 +277,16 @@ class _InAppWebViewScreenState extends State<InAppScreen> {
                       onCreateWindow: (controller, createWindowRequest) async{
                         Uri? url = createWindowRequest.request?.url;
                         if (url != null) {
-                          await webViewController.loadUrl(urlRequest: URLRequest(url: url));
+                          //await webViewController.loadUrl(urlRequest: URLRequest(url: url));
+                          //await launchUrl(url);
+
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              //builder: (context) => NewInAppScreen(),
+                              builder: (context) => NewInAppScreen(url: url), fullscreenDialog: true
+                            ),
+                          );
                         }
                         return true; // true 반환하여 기본 동작 방지
 
