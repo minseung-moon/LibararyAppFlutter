@@ -12,7 +12,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:screen_brightness/screen_brightness.dart';
-import 'package:url_launcher/url_launcher.dart'; // 패키지
 
 class InAppScreen extends StatefulWidget {
   const InAppScreen({Key? key}):super(key:key);
@@ -178,7 +177,7 @@ class _InAppWebViewScreenState extends State<InAppScreen> {
                             mediaPlaybackRequiresUserGesture: true,
                             allowFileAccessFromFileURLs: true,
                             allowUniversalAccessFromFileURLs: true,
-                            verticalScrollBarEnabled: true,
+                            verticalScrollBarEnabled: false, // disabled vertical scroll
                             userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.122 Safari/537.36'
                         ),
                         android: AndroidInAppWebViewOptions(
@@ -187,7 +186,8 @@ class _InAppWebViewScreenState extends State<InAppScreen> {
                             builtInZoomControls: true,
                             thirdPartyCookiesEnabled: true,
                             allowFileAccess: true,
-                            supportMultipleWindows: true
+                            supportMultipleWindows: true,
+
                         ),
                         ios: IOSInAppWebViewOptions(
                           allowsInlineMediaPlayback: true,
@@ -269,6 +269,19 @@ class _InAppWebViewScreenState extends State<InAppScreen> {
                           String? firebaseToken = await fcmSetting();
 
                           return firebaseToken;
+                        });
+
+                        webViewController.addJavaScriptHandler(handlerName: 'GetOS', callback: (args) async {
+                          String OsType = "etc";
+
+                          if(Platform.isAndroid) OsType ="android";
+                          else if(Platform.isIOS) OsType ="ios";
+                          else if(Platform.isWindows) OsType ="windows";
+                          else if(Platform.isMacOS) OsType ="macos";
+                          else if(Platform.isLinux) OsType ="linux";
+                          else if(Platform.isFuchsia) OsType ="fuchsia";
+
+                          return OsType;
                         });
 
                       },
