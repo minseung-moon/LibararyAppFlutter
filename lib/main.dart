@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firstapp/components/fcmSetting.dart';
+import 'package:flutter/services.dart';
 import 'firebase_options.dart';
 import 'package:firstapp/route/routes.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +16,12 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  // 화면 세로모드 고정
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
 
   runApp(MyApp());
 }
