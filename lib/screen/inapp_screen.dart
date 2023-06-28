@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:flutter_windowmanager/flutter_windowmanager.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 
 class InAppScreen extends StatefulWidget {
@@ -30,6 +31,12 @@ class _InAppWebViewScreenState extends State<InAppScreen> {
   @override
   void initState() {
     super.initState();
+
+    WidgetsBinding.instance.addPersistentFrameCallback((timeStamp) async {
+      if(Platform.isAndroid) {
+        FlutterWindowManager.addFlags(FlutterWindowManager.FLAG_SECURE);
+      }
+    });
 
     pullToRefreshController = (kIsWeb
         ? null
@@ -81,7 +88,7 @@ class _InAppWebViewScreenState extends State<InAppScreen> {
 
     try {
       barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
-          '#00000000', 'Cancel', false, ScanMode.BARCODE);
+          '#ff0000', 'Cancel', true, ScanMode.BARCODE);
       print(barcodeScanRes);
     } on PlatformException {
       barcodeScanRes = 'Failed to get platform version.';
