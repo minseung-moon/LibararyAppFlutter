@@ -13,6 +13,7 @@ import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_windowmanager/flutter_windowmanager.dart';
 import 'package:screen_brightness/screen_brightness.dart';
+import 'package:shake/shake.dart';
 
 class InAppScreen extends StatefulWidget {
   const InAppScreen({Key? key}):super(key:key);
@@ -49,6 +50,11 @@ class _InAppWebViewScreenState extends State<InAppScreen> {
           webViewController.loadUrl(urlRequest: URLRequest(url: await webViewController.getUrl()));}
       },
     ))!;
+    
+    ShakeDetector.autoStart(onPhoneShake: () {
+      //webViewController.evaluateJavascript(source: "alert('hi')");
+      scanBarcodeNormal();
+    });
   }
 
   // 밝기조절 (0~1)
