@@ -97,16 +97,18 @@ class _InAppWebViewScreenState extends State<InAppScreen> {
     if (!mounted) return;
 
     if(barcodeScanRes != "-1") {
-      String url = "http://applibrary2023.15449642.com:8080/main/site/appLibrary/search.do?";
-      url += "cmd_name=bookandnonbooksearch";
-      url += "&search_type=detail";
-      url += "&detail=OK";
-      url += "&use_facet=N";
-      url += "&manage_code=MS%2CMB%2CMC%2CMG%2CMA%2CMJ%2CMH%2CMN%2CMO%2CMP%2CMQ%2CMR%2CMK%2CML%2CME%2CMF%2CMT%2CMU%2CMV%2CMW%2CMX%2CNA";
-      url += "&all_lib=N";
-      url += "&all_lib_detail_big=Y";
-      url += "&all_lib_detail_small=Y";
-      url += "&search_isbn_issn=" + barcodeScanRes;
+      // String url = "http://applibrary2023.15449642.com:8080/main/site/appLibrary/search.do?";
+      // url += "cmd_name=bookandnonbooksearch";
+      // url += "&search_type=detail";
+      // url += "&detail=OK";
+      // url += "&use_facet=N";
+      // url += "&manage_code=MS%2CMB%2CMC%2CMG%2CMA%2CMJ%2CMH%2CMN%2CMO%2CMP%2CMQ%2CMR%2CMK%2CML%2CME%2CMF%2CMT%2CMU%2CMV%2CMW%2CMX%2CNA";
+      // url += "&all_lib=N";
+      // url += "&all_lib_detail_big=Y";
+      // url += "&all_lib_detail_small=Y";
+      // url += "&search_isbn_issn=" + barcodeScanRes;
+      String url = "http://applibrary2023.15449642.com:8080/main/site/appLibrary/search_isbn.do";
+      url += "?search_isbn_issn=" + barcodeScanRes;
 
       if (webViewController != null) {
         await webViewController.loadUrl(urlRequest: URLRequest(
