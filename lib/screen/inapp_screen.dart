@@ -60,7 +60,12 @@ class _InAppWebViewScreenState extends State<InAppScreen>  with WidgetsBindingOb
     _shakeDetector = ShakeDetector.autoStart(onPhoneShake: () {
       if(_isShakeDetectorActive) {
         //webViewController.evaluateJavascript(source: "alert('hi')");
-        scanBarcodeNormal();
+        //scanBarcodeNormal();
+        String url = "http://applibrary2023.15449642.com:8080";
+        url += "/main/site/appLibrary/main.do?showcard=Y";
+        webViewController.loadUrl(urlRequest: URLRequest(
+          url: Uri.parse(url),
+        )); // Replace with your new Korean URL
       }
     });
     _shakeDetector.startListening();
