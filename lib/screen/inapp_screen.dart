@@ -29,6 +29,7 @@ class _InAppWebViewScreenState extends State<InAppScreen>  with WidgetsBindingOb
   late final PullToRefreshController pullToRefreshController;
   double progress = 0;
   bool _isShakeDetectorActive = false;
+  bool _isShakeDo = false;
 
   late ShakeDetector _shakeDetector;
 
@@ -36,15 +37,18 @@ class _InAppWebViewScreenState extends State<InAppScreen>  with WidgetsBindingOb
   void initState() {
     super.initState();
 
+    // shake 이벤트 타이밍 제어
     WidgetsBinding.instance.addObserver(this);
     _isShakeDetectorActive = true;
 
+    // 안드로이드 캡쳐 방지
     WidgetsBinding.instance.addPersistentFrameCallback((timeStamp) async {
       if(Platform.isAndroid) {
         FlutterWindowManager.addFlags(FlutterWindowManager.FLAG_SECURE);
       }
     });
 
+    // 아래로 당겨서 새로고침
     pullToRefreshController = (kIsWeb
         ? null
         : PullToRefreshController(
@@ -57,22 +61,35 @@ class _InAppWebViewScreenState extends State<InAppScreen>  with WidgetsBindingOb
       },
     ))!;
 
+    // shake 이벤트 변수에 할당
     _shakeDetector = ShakeDetector.autoStart(onPhoneShake: () {
       if(_isShakeDetectorActive) {
         //webViewController.evaluateJavascript(source: "alert('hi')");
         //scanBarcodeNormal();
-        String url = "http://applibrary2023.15449642.com:8080";
-        url += "/main/site/appLibrary/main.do?showcard=Y";
-        webViewController.loadUrl(urlRequest: URLRequest(
-          url: Uri.parse(url),
-        )); // Replace with your new Korean URL
+        // String url = "http://applibrary2023.15449642.com:8080";
+        // url += "/main/site/appLibrary/main.do?showcard=Y";
+        // webViewController.loadUrl(urlRequest: URLRequest(
+        //   url: Uri.parse(url),
+        // )); // Replace with your new Korean URL
+        if(_isShakeDo) {
+          if (Navigator.canPop(context)) {
+            Navigator.pop(context);
+          }
+          _isShakeDo = false;
+          resetBrightness();
+        } else {
+          webViewController.evaluateJavascript(source: "showCard()");
+          _isShakeDo = true;
+          setBrightness(1);
+        }
       }
     });
+    // shake 이벤트 실행
     _shakeDetector.startListening();
   }
 
   @override
-  void dispose() {
+  void dispose() { // 앱 종료시 shake 이벤트 해제
     //앱 상태 변경 이벤트 해제
     //문제는 앱 종료시 dispose함수가 호출되지 않아 해당 함수를 실행 할 수가 없다.
     _isShakeDetectorActive = false;
@@ -81,7 +98,7 @@ class _InAppWebViewScreenState extends State<InAppScreen>  with WidgetsBindingOb
     super.dispose();
   }
 
-  // 앱 상태 변경시 호출
+  // 앱 상태 변경시 호출 상태별 shake 이벤트 해제
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     switch (state) {
@@ -162,16 +179,6 @@ class _InAppWebViewScreenState extends State<InAppScreen>  with WidgetsBindingOb
     if (!mounted) return;
 
     if(barcodeScanRes != "-1") {
-      // String url = "http://applibrary2023.15449642.com:8080/main/site/appLibrary/search.do?";
-      // url += "cmd_name=bookandnonbooksearch";
-      // url += "&search_type=detail";
-      // url += "&detail=OK";
-      // url += "&use_facet=N";
-      // url += "&manage_code=MS%2CMB%2CMC%2CMG%2CMA%2CMJ%2CMH%2CMN%2CMO%2CMP%2CMQ%2CMR%2CMK%2CML%2CME%2CMF%2CMT%2CMU%2CMV%2CMW%2CMX%2CNA";
-      // url += "&all_lib=N";
-      // url += "&all_lib_detail_big=Y";
-      // url += "&all_lib_detail_small=Y";
-      // url += "&search_isbn_issn=" + barcodeScanRes;
       String url = "http://applibrary2023.15449642.com:8080/main/site/appLibrary/search_isbn.do";
       url += "?search_isbn_issn=" + barcodeScanRes;
 
@@ -182,6 +189,8 @@ class _InAppWebViewScreenState extends State<InAppScreen>  with WidgetsBindingOb
       }
     }
   }
+
+  // 휴대폰 유니크 아이디 전달
   Future<String?> getDeviceUniqueId() async {
     String? deviceIdentifier = 'unknown';
     var deviceInfo = DeviceInfoPlugin();
@@ -285,9 +294,10 @@ class _InAppWebViewScreenState extends State<InAppScreen>  with WidgetsBindingOb
                             resources: resources,
                             action: PermissionRequestResponseAction.GRANT);
                       },
-                      onWebViewCreated: (InAppWebViewController controller) {
+                      onWebViewCreated: (InAppWebViewController controller) { // JS Channer
                         webViewController = controller;
 
+                        // alert
                         webViewController.addJavaScriptHandler(handlerName: 'Toaster', callback: (args) {
                           String arg = args[0];
 
@@ -300,6 +310,7 @@ class _InAppWebViewScreenState extends State<InAppScreen>  with WidgetsBindingOb
                           }
                         });
 
+                        // confirm
                         webViewController.addJavaScriptHandler(handlerName: 'TConfirm', callback: (args) {
                           String arg = args[0];
 
@@ -320,31 +331,33 @@ class _InAppWebViewScreenState extends State<InAppScreen>  with WidgetsBindingOb
                           UDialog.confirm(context, title: title, content: content, positive: positive, negative: negative);
                         });
 
+                        // 밝기 최대화
                         webViewController.addJavaScriptHandler(handlerName: 'BrightnessMax', callback: (args) {
                           setBrightness(1);
                         });
+                        // 밝기 리셋
                         webViewController.addJavaScriptHandler(handlerName: 'BrightnessReset', callback: (args) {
                           resetBrightness();
                         });
-
+                        // 바코드 실행
                         webViewController.addJavaScriptHandler(handlerName: 'Barcode', callback: (args) {
                           //Navigator.pushNamed(context, "/barcode");
                           scanBarcodeNormal();
                         });
-
+                        // 디바이스키 전달
                         webViewController.addJavaScriptHandler(handlerName: 'GetDeviceKey', callback: (args) async {
                           String? deviceID = await getDeviceUniqueId();
 
                           return deviceID;
                         });
-
+                        // 파이어베이스 push token 전달
                         webViewController.addJavaScriptHandler(handlerName: 'GetPushToken', callback: (args) async {
                           // FCM token
                           String? firebaseToken = await fcmSetting();
 
                           return firebaseToken;
                         });
-
+                        // OS 타입 전달
                         webViewController.addJavaScriptHandler(handlerName: 'GetOS', callback: (args) async {
                           String OsType = "etc";
 
@@ -359,6 +372,7 @@ class _InAppWebViewScreenState extends State<InAppScreen>  with WidgetsBindingOb
                         });
 
                       },
+                      // 새창
                       onCreateWindow: (controller, createWindowRequest) async{
                         Uri? url = createWindowRequest.request?.url;
                         if (url != null) {
@@ -372,6 +386,8 @@ class _InAppWebViewScreenState extends State<InAppScreen>  with WidgetsBindingOb
                               builder: (context) => NewInAppScreen(url: url), fullscreenDialog: true
                             ),
                           );
+
+                          _isShakeDo = true;
                         }
                         return true; // true 반환하여 기본 동작 방지
 
