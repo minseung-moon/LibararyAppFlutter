@@ -76,11 +76,9 @@ class _InAppWebViewScreenState extends State<InAppScreen>  with WidgetsBindingOb
             Navigator.pop(context);
           }
           _isShakeDo = false;
-          resetBrightness();
         } else {
           webViewController.evaluateJavascript(source: "showCard()");
           _isShakeDo = true;
-          setBrightness(1);
         }
       }
     });
@@ -390,7 +388,6 @@ class _InAppWebViewScreenState extends State<InAppScreen>  with WidgetsBindingOb
                           _isShakeDo = true;
                         }
                         return true; // true 반환하여 기본 동작 방지
-
                       },
                     )
                   ]))
