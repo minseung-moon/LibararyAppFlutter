@@ -29,7 +29,7 @@ class _InAppWebViewScreenState extends State<InAppScreen>  with WidgetsBindingOb
   late final PullToRefreshController pullToRefreshController;
   double progress = 0;
   bool _isShakeDetectorActive = false;
-  bool _isShakeDo = false;
+  // bool _isShakeDo = false;
 
   late ShakeDetector _shakeDetector;
 
@@ -64,22 +64,18 @@ class _InAppWebViewScreenState extends State<InAppScreen>  with WidgetsBindingOb
     // shake 이벤트 변수에 할당
     _shakeDetector = ShakeDetector.autoStart(onPhoneShake: () {
       if(_isShakeDetectorActive) {
-        //webViewController.evaluateJavascript(source: "alert('hi')");
-        //scanBarcodeNormal();
-        // String url = "http://applibrary2023.15449642.com:8080";
-        // url += "/main/site/appLibrary/main.do?showcard=Y";
-        // webViewController.loadUrl(urlRequest: URLRequest(
-        //   url: Uri.parse(url),
-        // )); // Replace with your new Korean URL
-        if(_isShakeDo) {
-          if (Navigator.canPop(context)) {
-            Navigator.pop(context);
-          }
-          _isShakeDo = false;
-        } else {
-          webViewController.evaluateJavascript(source: "showCard()");
-          _isShakeDo = true;
-        }
+        // 새창
+        // if(_isShakeDo) {
+        //   if (Navigator.canPop(context)) {
+        //     Navigator.pop(context);
+        //   }
+        //   _isShakeDo = false;
+        // } else {
+        //   webViewController.evaluateJavascript(source: "showCard()");
+        //   _isShakeDo = true;
+        // }
+
+        webViewController.evaluateJavascript(source: "showCard()");
       }
     });
     // shake 이벤트 실행
@@ -385,7 +381,7 @@ class _InAppWebViewScreenState extends State<InAppScreen>  with WidgetsBindingOb
                             ),
                           );
 
-                          _isShakeDo = true;
+                          //_isShakeDo = true;
                         }
                         return true; // true 반환하여 기본 동작 방지
                       },
