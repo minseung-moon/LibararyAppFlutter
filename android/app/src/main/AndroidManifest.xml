@@ -7,9 +7,12 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
     <!--voice-->
+    <!--shake-->
+    <uses-permission android:name="android.permission.ACCELEROMETER"/>
+    <!--shake-->
 
     <application
-        android:label="세종시립도서관"
+        android:label="익산시립도서관"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true"

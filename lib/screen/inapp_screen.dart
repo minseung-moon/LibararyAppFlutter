@@ -24,7 +24,7 @@ class InAppScreen extends StatefulWidget {
 
 class _InAppWebViewScreenState extends State<InAppScreen>  with WidgetsBindingObserver {
   final GlobalKey webViewKey = GlobalKey();
-  Uri myUrl = Uri.parse("http://applibrary2023.15449642.com:8080/");
+  Uri myUrl = Uri.parse("http://applibrary2023.15449642.com:8080/main/site/appLibrary/intro.do");
   late final InAppWebViewController webViewController;
   late final PullToRefreshController pullToRefreshController;
   double progress = 0;
@@ -64,7 +64,8 @@ class _InAppWebViewScreenState extends State<InAppScreen>  with WidgetsBindingOb
     // shake 이벤트 변수에 할당
     _shakeDetector = ShakeDetector.autoStart(onPhoneShake: () {
       if(_isShakeDetectorActive) {
-        // 새창
+        webViewController.evaluateJavascript(source: "showCard()");
+
         // if(_isShakeDo) {
         //   if (Navigator.canPop(context)) {
         //     Navigator.pop(context);
@@ -74,8 +75,6 @@ class _InAppWebViewScreenState extends State<InAppScreen>  with WidgetsBindingOb
         //   webViewController.evaluateJavascript(source: "showCard()");
         //   _isShakeDo = true;
         // }
-
-        webViewController.evaluateJavascript(source: "showCard()");
       }
     });
     // shake 이벤트 실행
@@ -212,26 +211,26 @@ class _InAppWebViewScreenState extends State<InAppScreen>  with WidgetsBindingOb
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        // appBar: AppBar( // 앱바 위젯 추가
-        //   // 배경색 지정
-        //   backgroundColor: Colors.orange,
-        //   // 앱 타이틀 지정
-        //   title: Text('Code Factory'),
-        //   // 가운데정렬
-        //   centerTitle: true,
-        //   actions: [
-        //     IconButton(
-        //       onPressed: () {
-        //         scanBarcodeNormal();
-        //       },
-        //       // 홈 버튼 아이콘 설정
-        //       icon: Icon(
-        //           Icons.barcode_reader
-        //       ),
-        //     ),
-        //
-        //   ],
-        // ),
+      // appBar: AppBar( // 앱바 위젯 추가
+      //   // 배경색 지정
+      //   backgroundColor: Colors.orange,
+      //   // 앱 타이틀 지정
+      //   title: Text('Code Factory'),
+      //   // 가운데정렬
+      //   centerTitle: true,
+      //   actions: [
+      //     IconButton(
+      //       onPressed: () {
+      //         scanBarcodeNormal();
+      //       },
+      //       // 홈 버튼 아이콘 설정
+      //       icon: Icon(
+      //           Icons.barcode_reader
+      //       ),
+      //     ),
+      //
+      //   ],
+      // ),
         body: WillPopScope(
             onWillPop: () => onGoBack(context),
             child: Column(children: <Widget>[
@@ -258,12 +257,12 @@ class _InAppWebViewScreenState extends State<InAppScreen>  with WidgetsBindingOb
                             userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.122 Safari/537.36'
                         ),
                         android: AndroidInAppWebViewOptions(
-                            useHybridComposition: true,
-                            allowContentAccess: true,
-                            builtInZoomControls: true,
-                            thirdPartyCookiesEnabled: true,
-                            allowFileAccess: true,
-                            supportMultipleWindows: true,
+                          useHybridComposition: true,
+                          allowContentAccess: true,
+                          builtInZoomControls: true,
+                          thirdPartyCookiesEnabled: true,
+                          allowFileAccess: true,
+                          supportMultipleWindows: true,
 
                         ),
                         ios: IOSInAppWebViewOptions(
@@ -377,11 +376,11 @@ class _InAppWebViewScreenState extends State<InAppScreen>  with WidgetsBindingOb
                             context,
                             MaterialPageRoute(
                               //builder: (context) => NewInAppScreen(),
-                              builder: (context) => NewInAppScreen(url: url), fullscreenDialog: true
+                                builder: (context) => NewInAppScreen(url: url), fullscreenDialog: true
                             ),
                           );
 
-                          //_isShakeDo = true;
+                          // _isShakeDo = true;
                         }
                         return true; // true 반환하여 기본 동작 방지
                       },
