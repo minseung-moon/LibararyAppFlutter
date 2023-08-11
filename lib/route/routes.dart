@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 
 final routes = {
   //'/': (BuildContext context) => HomeScreen(),
-  '/': (BuildContext context) => InAppScreen(),
-  '/barcode': (BuildContext context) => BarcodeScreen(),
+  //'/': (BuildContext context) => InAppScreen(),
+  //'/barcode': (BuildContext context) => BarcodeScreen(),
   //'/inapp': (BuildContext context) => InAppScreen(),
 };

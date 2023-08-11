@@ -16,12 +16,10 @@ import 'package:screen_brightness/screen_brightness.dart';
 import 'package:shake/shake.dart';
 
 class InAppScreen extends StatefulWidget {
-  final String url;
-
-  const InAppScreen({required this.url, Key? key}) : super(key: key);
+  const InAppScreen({Key? key}):super(key:key);
 
   @override
-  State<InAppScreen> createState() => _InAppWebViewScreenState(url);
+  State<InAppScreen> createState() => _InAppWebViewScreenState();
 }
 
 class _InAppWebViewScreenState extends State<InAppScreen>  with WidgetsBindingObserver {
@@ -31,12 +29,9 @@ class _InAppWebViewScreenState extends State<InAppScreen>  with WidgetsBindingOb
   late final PullToRefreshController pullToRefreshController;
   double progress = 0;
   bool _isShakeDetectorActive = false;
-  String url = "";
   // bool _isShakeDo = false;
 
   late ShakeDetector _shakeDetector;
-
-  _InAppWebViewScreenState(url) : myUrl = Uri.parse(url);
 
   @override
   void initState() {
@@ -215,8 +210,6 @@ class _InAppWebViewScreenState extends State<InAppScreen>  with WidgetsBindingOb
 
   @override
   Widget build(BuildContext context) {
-    print("이쪽");
-    print(myUrl);
     return Scaffold(
       // appBar: AppBar( // 앱바 위젯 추가
       //   // 배경색 지정

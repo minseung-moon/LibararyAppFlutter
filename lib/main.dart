@@ -1,5 +1,11 @@
+import 'dart:io';
+
+import 'package:android_id/android_id.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firstapp/components/fcmSetting.dart';
+import 'package:firstapp/screen/inapp_screen.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'firebase_options.dart';
 import 'package:firstapp/route/routes.dart';
@@ -23,19 +29,56 @@ Future<void> main() async {
     DeviceOrientation.portraitDown,
   ]);
 
-  runApp(MyApp());
+  //runApp(MyApp());
+  // 휴대폰 유니크 아이디 전달
+  Future<String?> getDeviceUniqueId() async {
+    String? deviceIdentifier = 'unknown';
+    var deviceInfo = DeviceInfoPlugin();
+
+    if (Platform.isAndroid) {
+      const androidId = AndroidId();
+      deviceIdentifier = await androidId.getId();
+    } else if (Platform.isIOS) {
+      var iosInfo = await deviceInfo.iosInfo;
+      deviceIdentifier = iosInfo.identifierForVendor!;
+    } else if (Platform.isLinux) {
+      var linuxInfo = await deviceInfo.linuxInfo;
+      deviceIdentifier = linuxInfo.machineId!;
+    } else if (kIsWeb) {
+      var webInfo = await deviceInfo.webBrowserInfo;
+      deviceIdentifier = webInfo.vendor! +
+          webInfo.userAgent! +
+          webInfo.hardwareConcurrency.toString();
+    }
+
+    return deviceIdentifier;
+  }
+
+  // Get device unique ID before runApp
+  String? initDeviceKey = await getDeviceUniqueId();
+  String initUrl = "?appkey=${initDeviceKey}";
+  String url = "http://applibrary2023.15449642.com:8080/main/site/appLibrary/intro.do$initUrl";
+
+  runApp(MyApp(url: url));
 
 }
 
 class MyApp extends StatelessWidget {
+
+  final String url;
+
+  const MyApp({required this.url, Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
+
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: '익산시립도서관',
       theme: ThemeData(
         primarySwatch: Colors.lightBlue
       ),
-      routes: routes,
+      //routes: routes,
+      home: InAppScreen(url: url,),
     );
   }
 
